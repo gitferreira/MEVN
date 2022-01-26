@@ -1,14 +1,15 @@
-import routerx from 'express-promise-router';
-import CategoryController from '../controllers/CategoryController';
+import routerx from "express-promise-router";
+import categoryController from "../controllers/CategoryController";
+import auth from "../middlewares/auth";
 
 const router = routerx();
 
-router.post('/add', CategoryController.add);
-router.get('/query', CategoryController.query);
-router.get('/list', CategoryController.list);
-router.put('/update', CategoryController.update);
-router.delete('/remove', CategoryController.remove);
-router.put('/activate', CategoryController.activate);
-router.put('/deactivate', CategoryController.deactivate);
+router.post("/add", auth.verifyWharehouse, categoryController.add);
+router.get("/query", auth.verifyWharehouse, categoryController.query);
+router.get("/list", auth.verifyWharehouse, categoryController.list);
+router.put("/update", auth.verifyWharehouse, categoryController.update);
+router.delete("/remove", auth.verifyWharehouse, categoryController.remove);
+router.put("/activate", auth.verifyWharehouse, categoryController.activate);
+router.put("/deactivate", auth.verifyWharehouse, categoryController.deactivate);
 
 export default router;
