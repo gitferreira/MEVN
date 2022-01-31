@@ -37,7 +37,7 @@ export default {
     }
   },
   verifyWharehouse: async (req, res, next) => {
-    if (!req.headers.tokerm) {
+    if (!req.headers.token) {
       res.status(404).send({
         message: "No token",
       });
@@ -52,7 +52,7 @@ export default {
     }
   },
   verifyVendor: async (req, res, next) => {
-    if (!req.headers.tokerm) {
+    if (!req.headers.token) {
       res.status(404).send({
         message: "No token",
       });

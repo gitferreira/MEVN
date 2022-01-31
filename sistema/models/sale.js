@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const revenueSchema = new Schema({
+const saleSchema = new Schema({
   user: { type: Schema.ObjectId, ref: "user", required: true },
   person: { type: Schema.ObjectId, ref: "person", required: true },
   receipt_type: { type: String, maxlength: 20, required: true },
@@ -14,12 +14,13 @@ const revenueSchema = new Schema({
       article: { type: String, required: true },
       quantity: { type: Number, required: true },
       price: { type: Number, required: true },
+      discount: {type: Number, required: true}
     },
   ],
   state: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now },
 });
 
-const Revenue = mongoose.model("revenue", revenueSchema);
+const Sale = mongoose.model("sale", saleSchema);
 
-export default Revenue;
+export default Sale;

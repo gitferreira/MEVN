@@ -11,5 +11,6 @@ router.put("/update", auth.verifyWharehouse, articleController.update);
 router.delete("/remove", auth.verifyWharehouse, articleController.remove);
 router.put("/activate", auth.verifyWharehouse, articleController.activate);
 router.put("/deactivate", auth.verifyWharehouse, articleController.deactivate);
+router.get("/queryCode", auth.verifyUser, articleController.queryCode);
 
 export default router;
