@@ -49,35 +49,25 @@
                 <v-card-text>
                   <v-container>
                     <v-row>
-                      <v-col cols="12" sm="6" md="4">
+                      <v-col cols="12" sm="12" md="12">
                         <v-text-field
                           v-model="editedItem.name"
-                          label="Dessert name"
+                          label="Name"
                         ></v-text-field>
                       </v-col>
-                      <v-col cols="12" sm="6" md="4">
+                      <v-col cols="12" sm="12" md="12">
                         <v-text-field
-                          v-model="editedItem.calories"
-                          label="Calories"
+                          v-model="editedItem.description"
+                          label="Description"
                         ></v-text-field>
                       </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          v-model="editedItem.fat"
-                          label="Fat (g)"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          v-model="editedItem.carbs"
-                          label="Carbs (g)"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          v-model="editedItem.protein"
-                          label="Protein (g)"
-                        ></v-text-field>
+                      <v-col cols="12" sm="12" md="12" v-show="true">
+                        <div
+                          class="red--text"
+                          v-for="i in validateMessage"
+                          :key="i"
+                          v-text="i"
+                        ></div>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -141,19 +131,12 @@ export default {
       desserts: [],
       editedIndex: -1,
       editedItem: {
+        _id: "",
         name: "",
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
+        description: "",
       },
-      defaultItem: {
-        name: "",
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
-      },
+      validated: 0,
+      validateMessage: [],
     };
   },
 
@@ -177,12 +160,11 @@ export default {
   },
 
   methods: {
-
-          getColor (state) {
+    getColor(state) {
       if (state) {
-        return 'green'
+        return "green";
       } else {
-        return 'red'
+        return "red";
       }
     },
     list() {
@@ -195,12 +177,14 @@ export default {
         .catch(function (error) {
           console.log(error);
         });
-    },  
+    },
 
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.editedItem._id = item._id;
+      this.editedItem.name = item.name;
+      this.editedItem.description = item.description;
       this.dialog = true;
+      this.editedIndex = 1;
     },
 
     deleteItem(item) {
@@ -216,27 +200,75 @@ export default {
 
     close() {
       this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
     },
 
     closeDelete() {
       this.dialogDelete = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
+    },
+
+    clean() {
+      this.editedItem._id = "";
+      this.editedItem.name = "";
+      this.editedItem.description = "";
+      this.validated = 0;
+      this.validateMessage = [];
+      this.editedIndex =-1
+    },
+
+    validate() {
+      this.validated = 0;
+      this.validateMessage = [];
+      if (this.editedItem.name.length < 1 || this.editedItem.name.length > 50) {
+        this.validateMessage.push(
+          "Name of category must have between 1 and 50 characters"
+        );
+      }
+      if (this.editedItem.description.length > 255) {
+        this.validateMessage.push(
+          "Description of category must have less than 255 characters"
+        );
+      }
+      if (this.validateMessage.length) {
+        this.validated = 1;
+      }
+      return this.validated;
     },
 
     save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
-      } else {
-        this.desserts.push(this.editedItem);
+      let me = this;
+      if (this.validate()) {
+        return;
       }
-      this.close();
+      if (this.editedIndex > -1) {
+        axios
+          .put("category/update", {
+            '_id': this.editedItem._id,
+            'name': this.editedItem.name,
+            'description': this.editedItem.description,
+          })
+          .then(function (response) {
+            me.clean();
+            me.close();
+            me.list();
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      } else {
+        axios
+          .post("category/add", {
+            'name': this.editedItem.name,
+            'description': this.editedItem.description,
+          })
+          .then(function (response) {
+            me.clean();
+            me.close();
+            me.list();
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
     },
   },
 };
